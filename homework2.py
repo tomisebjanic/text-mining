@@ -26,6 +26,7 @@ class TextMining:
         self.data = {}
         # self.clusters = [[i] for i in self.languages]
         self.clusters = [[i] for i in range(len(self.languages))]
+        self.clusters_copy = [[i] for i in range(len(self.languages))]
         self.linkage = self.linkages["max"]
         for lan in self.languages:
             self.docs[lan] = self.parse_file('ready/'+lan+'.txt')
@@ -78,16 +79,17 @@ class TextMining:
     def do_mining(self):
         Z = []
         while len(self.clusters) > 1:
-            dist, clusters = self.closest_clusters()
-            # new_cluster = [clusters[0], clusters[1]]
-            Z.append([self.clusters.index(clusters[0]), self.clusters.index(clusters[1]), dist, len(self.flatten([clusters[0], clusters[1]]))])
-            del self.clusters[self.clusters.index(clusters[0])]
-            del self.clusters[self.clusters.index(clusters[1])]
-            self.clusters.append([clusters[0], clusters[1]])
-            print(dist, [clusters[0], clusters[1]])
+            dist, cl = self.closest_clusters()
+            temp = self.flatten(list(cl))
+            Z.append([self.clusters_copy.index(cl[0]), self.clusters_copy.index(cl[1]), dist, len(temp)])
+            del self.clusters[self.clusters.index(cl[0])]
+            del self.clusters[self.clusters.index(cl[1])]
+            self.clusters.append(list(cl))
+            self.clusters_copy.append(self.flatten(list(cl)))
+            print(dist, cl)
 
 
-        dendrogram(Z)
+        dendrogram(Z, labels=self.languages)
         plt.show()
 
 
@@ -103,43 +105,5 @@ class TextMining:
         # exit(0)
 
 
-
-
-def flat(lst):
-    i=0
-    while i<len(lst):
-        while True:
-            try:
-                lst[i:i+1] = lst[i]
-            except (TypeError, IndexError):
-                break
-        i += 1
-    return lst
-
-# print(flat([1,[2],3]))
-
-
 tm = TextMining()
 tm.do_mining()
-# print(tm.closest_clusters())
-
-filenames = ['ready/eng.txt',
-             'ready/ger.txt',
-             'ready/slo.txt',
-             'ready/slv.txt',
-             'ready/czc.txt',
-             'ready/dns.txt',
-             'ready/dut.txt',
-             'ready/blg.txt',
-             'ready/src1.txt',
-             'ready/src3.txt',
-             'ready/rus.txt',
-             'ready/ruw.txt',
-             'ready/swd.txt',
-             'ready/nrn.txt',
-             'ready/grk.txt',
-             'ready/por.txt',
-             'ready/fin.txt',
-             'ready/hng.txt',
-             'ready/chn.txt',
-             'ready/jpn.txt']
