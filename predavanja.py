@@ -1,7 +1,7 @@
 #simpl 20min.
 
 from collections import Counter
-from math import sqrt
+
 
 s = "Perica reze raci rep in se rezi perotu" 
 
@@ -30,3 +30,16 @@ print(neka)
 #nucaj unije (mnozice pa te fore)
 #
 #polek cos razdalje se uporablja tudi Jaccaro
+
+def to_freq(s1):
+	s = unidecode(s1.lower())
+	return Counter("%s%s" % (s[i],s[i+1]) for i in range(len(s)-1))
+
+def len_vektor(a):
+	return sqrt(sum(x**2 for x in a.values()))
+
+def dot_product(x,y):
+	return sum(v1*y.get(k1,0) for k1,v1 in x.items())
+
+def cos_dist(x,y):
+	return dot_product(x,y) / (len_vektor(x) * len_vektor(y))
