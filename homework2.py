@@ -13,8 +13,7 @@ class TextMining:
     linkages = {"min": min, "max": max}
 
     def __init__(self):
-        # self.languages = ['grk', 'por', 'fin', 'hng', 'chn', 'jpn', 'eng', 'ger', 'slo', 'slv', 'czc', 'dns', 'dut', 'blg', 'rus', 'ruw', 'swd', 'nrn']
-        self.languages = ['grk', 'por', 'fin', 'hng', 'chn', 'jpn', 'eng', 'ger', 'slo', 'slv', 'czc']
+        self.languages = ['grk', 'por', 'fin', 'hng', 'chn', 'jpn', 'eng', 'ger', 'slo', 'slv', 'czc', 'dns', 'dut', 'blg', 'rus', 'ruw', 'swd', 'nrn', 'mkj', 'spn', 'src4', 'src5', 'itn']
         self.k = 2
         self.docs, self.data = {}, {}
         self.clusters = [[i] for i in range(len(self.languages))]
@@ -44,7 +43,7 @@ class TextMining:
         return new_list
 
     def dot_produkt(self, x, y):
-        return sum(v1*y.get(k1, 0) for k1, v1, in x.items())
+        return sum(vx*y.get(kx, 0) for kx, vx, in x.items())
 
     def cos_dist(self, lan1, lan2):
         return 1 - (self.dot_produkt(self.data[self.languages[lan1]], self.data[self.languages[lan2]]) / (self.vector_distances[self.languages[lan1]] * self.vector_distances[self.languages[lan2]]))
@@ -64,11 +63,24 @@ class TextMining:
             del self.clusters[self.clusters.index(cl[1])]
             self.clusters.append(list(cl))
             self.clusters_copy.append(list(cl))
-            print(dist, cl)
 
-        dendrogram(z, labels=self.languages, orientation='right', distance_sort='ascending')
+        dendrogram(z, labels=self.languages, orientation='top', distance_sort='ascending')
+        plt.xlabel('Cluster Distances')
+        plt.ylabel('Languages')
+        plt.title('Language Similarity')
         plt.show()
+
+    def recognize_language(self, file):
+        article = Counter(self.generate_ngrams(self.parse_file(file)))
+        article_distance = (sum(vi**2 for vi in list(map(float, Counter(article).values()))))**0.5
+        distances = {lan: 1 - ((self.dot_produkt(self.data[lan], article)) / (self.vector_distances[lan] * article_distance)) for lan in self.data}
+        print('File', file, 'is in', min(distances, key=distances.get), 'language.')
+
+
 
 
 tm = TextMining()
-tm.do_mining()
+# tm.do_mining()
+tm.recognize_language('articles/slv.txt')
+tm.recognize_language('articles/eng.txt')
+tm.recognize_language('articles/ger.txt')
