@@ -87,9 +87,11 @@ class TextMining:
         article = Counter(self.generate_ngrams(self.parse_file('lanrec/'+file+'.txt')))
         article_distance = (sum(vi**2 for vi in list(map(float, Counter(article).values()))))**0.5
         distances = {lan: 1 - ((self.dot_product(self.data[lan], article)) / (self.vector_distances[lan] * article_distance)) for lan in self.data}
+        sum_dist = sum(distances[lan] for lan in distances)
+        distances = {lan: distances[lan]/sum_dist for lan in distances}
         for i in range(3):
             lan = min(distances, key=distances.get)
-            print('File', file, 'is in', lan, 'language', 'with a probability of', round((1-distances[lan])*100, 2), '%')
+            print('File', file, 'is in', lan, 'language', 'with a probability of error', round(distances[lan]*100, 2), '%')
             del distances[lan]
         print("===")
 
@@ -101,8 +103,7 @@ class TextMining:
         self.prepare_default_data(k)
         files = ['czc', 'eng', 'fin', 'ger', 'grk', 'hng', 'slv', 'spn', 'src5', 'dut']
         print('+++ Language Recognition +++')
-        for file in files:
-            self.recognize_language(file)
+        [self.recognize_language(file) for file in files]
         print("\n")
 
     def part_three(self, k=2):
