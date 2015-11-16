@@ -21,8 +21,8 @@ class TextMining:
         self.linkage = self.linkages["max"]
         self.docs = {lan: self.parse_file('ready/'+lan+'.txt') for lan in self.languages}
         for i in self.docs:
-            self.data[i] = Counter(self.generate_ngrams(self.docs[i]))
-            self.docs[i] = list(map(float, Counter(self.generate_ngrams(self.docs[i])).values()))
+            self.data[i] = Counter(self.generate_kmers(self.docs[i]))
+            self.docs[i] = list(map(float, Counter(self.generate_kmers(self.docs[i])).values()))
         self.vector_distances = {lan: (sum(vi**2 for vi in self.docs[lan]))**0.5 for lan in self.docs}
 
     def prepare_articles(self, k):
@@ -34,15 +34,15 @@ class TextMining:
         self.linkage = self.linkages["max"]
         self.docs = {lan: self.parse_file('articles/'+lan+'.txt') for lan in self.languages}
         for i in self.docs:
-            self.data[i] = Counter(self.generate_ngrams(self.docs[i]))
-            self.docs[i] = list(map(float, Counter(self.generate_ngrams(self.docs[i])).values()))
+            self.data[i] = Counter(self.generate_kmers(self.docs[i]))
+            self.docs[i] = list(map(float, Counter(self.generate_kmers(self.docs[i])).values()))
         self.vector_distances = {lan: (sum(vi**2 for vi in self.docs[lan]))**0.5 for lan in self.docs}
 
     def parse_file(self, file_name):
         f = open(file_name, encoding='utf-8').read()
         return re.sub("\s\s+", " ", unidecode(f.replace("\n", " ").replace("\r", "").replace("\t", "").replace("-", "").lower()))
 
-    def generate_ngrams(self, xs):
+    def generate_kmers(self, xs):
         for i in range(len(xs)-(self.k-1)):
             yield xs[i:i+self.k]
 
@@ -84,7 +84,7 @@ class TextMining:
         plt.show()
 
     def recognize_language(self, file):
-        article = Counter(self.generate_ngrams(self.parse_file('lanrec/'+file+'.txt')))
+        article = Counter(self.generate_kmers(self.parse_file('lanrec/' + file + '.txt')))
         article_distance = (sum(vi**2 for vi in list(map(float, Counter(article).values()))))**0.5
         distances = {lan: 1 - ((self.dot_product(self.data[lan], article)) / (self.vector_distances[lan] * article_distance)) for lan in self.data}
         sum_dist = sum(distances[lan] for lan in distances)
@@ -119,6 +119,6 @@ class TextMining:
 
 tm = TextMining()
 tm.part_one()
-tm.part_two()
-tm.part_three()
-tm.part_four()
+# tm.part_two()
+# tm.part_three()
+# tm.part_four()
